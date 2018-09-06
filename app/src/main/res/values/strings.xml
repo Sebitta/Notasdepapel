@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Notas de papel</string>
+    <string name="username" />
+    <string name="descripcion" />
+    <string name="descripcion_label" />
+    <string name="success_login_msg">que pasa perra</string>
+    <string name="error_login_msg">no paso perra</string>
+</resources>
