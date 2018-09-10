@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/item_delete2"
-        android:title="eliminar"/>
+        android:title="eliminar nota"/>
     <item android:id="@+id/item_change"
-        android:title="modificar"/>
+        android:title="modificar nota"/>
     <item android:id="@+id/item_color"
-        android:title="color"/>
+        android:title="ingresar color"/>
+    <item android:id="@+id/item_posicion"
+        android:title="cambiar posicion"/>
 </menu>

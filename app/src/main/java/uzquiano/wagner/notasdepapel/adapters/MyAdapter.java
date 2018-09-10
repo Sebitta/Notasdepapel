@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Random;
 
 import io.realm.RealmResults;
 import uzquiano.wagner.notasdepapel.R;
@@ -62,9 +63,19 @@ public class MyAdapter extends BaseAdapter {
         Note p = list.get(position);
         vh.id.setText(p.getId() + "");
         vh.Note.setText("\n" + p.getDescripcion());
-        if(p.getColor() == 0){
+        if (p.getColor() == 0){
             vh.color.setBackgroundColor(Color.WHITE);
-        }else if(p.getColor() == 1){
+        }
+        else if(p.getColor()==1) {
+            vh.color.setBackgroundColor(Color.CYAN);
+        }
+        else if(p.getColor()==2) {
+            vh.color.setBackgroundColor(Color.GREEN);
+        }
+        else if(p.getColor()==3) {
+            vh.color.setBackgroundColor(Color.BLUE);
+        }
+        else if(p.getColor()==4) {
             vh.color.setBackgroundColor(Color.RED);
         }
         return convertView;

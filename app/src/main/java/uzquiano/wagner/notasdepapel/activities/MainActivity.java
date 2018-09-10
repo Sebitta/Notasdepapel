@@ -19,6 +19,8 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.Random;
+
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -28,12 +30,12 @@ import uzquiano.wagner.notasdepapel.models.Note;
 
 public class MainActivity extends AppCompatActivity implements RealmChangeListener<RealmResults<Note>> {
 
-    private ListView listView;
+    //private ListView listView;
     private GridView gridView;
     private MyAdapter adapter;
-    String descripcion, descripcion2;
+    String descripcion, descripcion2, textoposicion;
     private Context context = this;
-    int post;
+    int post, actual , nueva, colorposicion;
 
 
     private Realm realm;
@@ -45,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
         setContentView(R.layout.activity_main);
         Realm.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
-        //listView = (ListView) findViewById(R.id.listView);
         gridView = (GridView) findViewById(R.id.GridView);
 
         people = getAllPeople();
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
         switch (item.getItemId()) {
             case R.id.item_delete2:
                 realm.beginTransaction();
-                people.deleteFromRealm(info.position); // App crash
+                people.deleteFromRealm(info.position);
                 realm.commitTransaction();
                 return true;
             case R.id.item_change: {
@@ -93,49 +94,91 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(
                         context);
-
-                // set prompts.xml to alertdialog builder
                 mBuilder.setView(promptsView);
 
-                final EditText userInput = (EditText) promptsView
-                        .findViewById(R.id.descripcion);
-
-                // set dialog message
-                mBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
+                final EditText userInput = (EditText) promptsView.findViewById(R.id.descripcion);
+                mBuilder.setCancelable(false).setPositiveButton("Modificar",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        // get user input and set it to result
-                                        // edit text
                                         descripcion2 = String.valueOf(userInput.getText());
-
                                         realm.beginTransaction();
                                         people.get(post).setDescripcion(descripcion2);
                                         realm.commitTransaction();
 
                                     }
                                 })
-                        .setNegativeButton("Cancel",
+                        .setNegativeButton("Cancelar",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDialog = mBuilder.create();
+                alertDialog.show();
+                return true;
+            }
+            case R.id.item_color:
+                post = info.position;
+                LayoutInflater Co = LayoutInflater.from(context);
+                View DialogColorView = Co.inflate(R.layout.dialog_color, null);
+
+                android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(
+                        context);
+
+                alertDialogBuilder.setView(DialogColorView).setNegativeButton("Aceptar",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });;
+                android.app.AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+                return true;
+
+            case R.id.item_posicion:
+                post = info.position;
+                LayoutInflater po = LayoutInflater.from(context);
+                View DialogPostView = po.inflate(R.layout.dialog_posicion, null);
+                android.app.AlertDialog.Builder alertDialogBuilderPost = new android.app.AlertDialog.Builder(context);
+                alertDialogBuilderPost.setView(DialogPostView);
+                final EditText userInput = (EditText) DialogPostView.findViewById(R.id.editText);
+                alertDialogBuilderPost.setCancelable(false).setPositiveButton("Mover",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        nueva = Integer.valueOf(userInput.getText().toString());
+                                         int tamaño = people.size();
+                                        if(nueva > tamaño){
+                                            Toast.makeText(MainActivity.this, "Accion incorrecta", Toast.LENGTH_SHORT).show();
+                                        }else{
+                                            if (nueva >= 1) {
+
+
+                                                realm.beginTransaction();
+                                                colorposicion = people.get(nueva-1).getColor();
+                                                textoposicion = people.get(nueva-1).getDescripcion();
+                                                people.get(nueva-1).setColor(people.get(post).getColor());
+                                                people.get(nueva-1).setDescripcion(people.get(post).getDescripcion());
+                                                people.get(post).setColor(colorposicion);
+                                                people.get(post).setDescripcion(textoposicion);
+                                                realm.commitTransaction();
+                                            }
+                                            else{
+                                                Toast.makeText(MainActivity.this, "Error de posición", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+
+                                    }
+                                })
+                        .setNegativeButton("Cancelar",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         dialog.cancel();
                                     }
                                 });
 
-                // create alert dialog
-                AlertDialog alertDialog = mBuilder.create();
-
-                // show it
-                alertDialog.show();
-
-
+                android.app.AlertDialog alertDialogPost = alertDialogBuilderPost.create();
+                alertDialogPost.show();
                 return true;
-            }
-            case R.id.item_color:
-                realm.beginTransaction();
-                people.get(info.position).setColor(1);
-                realm.commitTransaction();
             default:
                 return super.onContextItemSelected(item);
         }
@@ -163,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
         }
     }
 
-
     private RealmResults<Note> getAllPeople() {
         return realm.where(Note.class).findAll();
     }
@@ -173,12 +215,37 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
         realm.deleteAll();
         realm.commitTransaction();
     }
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_celeste:
+                realm.beginTransaction();
+                people.get(post).setColor(1);
+                realm.commitTransaction();
+                break;
+            case R.id.button_verde:
+                realm.beginTransaction();
+                people.get(post).setColor(2);
+                realm.commitTransaction();
+                break;
+            case R.id.button_azul:
+                realm.beginTransaction();
+                people.get(post).setColor(3);
+                realm.commitTransaction();
+                break;
+            case R.id.button_rojo:
+                realm.beginTransaction();
+                people.get(post).setColor(4);
+                realm.commitTransaction();
+                break;
+
+        }
+    }
+
+
 
 
     private void addPeople() {
         LayoutInflater li = LayoutInflater.from(context);
-        //android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(
-        //      context);
         View mView = li.inflate(R.layout.dialog,null);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(context);
         mBuilder.setView(mView);
@@ -187,15 +254,6 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
         mBuilder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                Note n2 = new Note(Descripcion.getText().toString(),0);
-                //Note n2 = new Note("tomaa2");
-
-                realm.copyToRealmOrUpdate(n2);
-                //realm.copyToRealmOrUpdate(n2);
-
-
-                people = getAllPeople();
-
             }
         });
         mBuilder.setView(mView);
@@ -205,26 +263,12 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
             @Override
             public void onClick(View v) {
                 if(!Descripcion.getText().toString().isEmpty()){
-                    Toast.makeText(MainActivity.this, R.string.success_login_msg,Toast.LENGTH_SHORT).show();
-                    //R.string.success_login_msg;
-                    //Note n1 = new Note("tomaa3");
-                    //realm.copyToRealmOrUpdate(n1);
-                    //people = getAllPeople();
-
+                    Toast.makeText(MainActivity.this, "Nota agregada",Toast.LENGTH_SHORT).show();
                     realm.executeTransaction(new Realm.Transaction() {
-
                         @Override
                         public void execute(final Realm realm) {
-
-
-                            //Color color;
                             Note n1 = new Note(Descripcion.getText().toString(),0);
-                            //Note n2 = new Note("tomaa2");
-
                             realm.copyToRealmOrUpdate(n1);
-                            //realm.copyToRealmOrUpdate(n2);
-
-
                             people = getAllPeople();
                         }
                     });
@@ -236,4 +280,8 @@ public class MainActivity extends AppCompatActivity implements RealmChangeListen
         });
 
     }
+
+
+
+
 }
